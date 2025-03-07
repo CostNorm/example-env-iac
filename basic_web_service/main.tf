@@ -87,11 +87,14 @@ resource "aws_launch_template" "web" {
   user_data = base64encode(<<-EOF
 #!/bin/bash
 cd ~ubuntu
-sudo apt update
-sudo apt install -y git python3-pip
+sudo su
+apt update
+apt install -y git python3-pip python3-venv
 git clone https://github.com/costnorm/example-env-iac.git
 cd example-env-iac/basic_web_service/webapp_src
-pip3 install -r requirements.txt --break-system-packages
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
 nohup python3 main.py &
 EOF
   )
