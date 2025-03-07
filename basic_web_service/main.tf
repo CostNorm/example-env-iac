@@ -161,4 +161,6 @@ resource "aws_autoscaling_group" "web" {
     value               = "web-asg-${random_string.random_suffix.result}"
     propagate_at_launch = true
   }
+
+  depends_on = [ module.vpc ]
 }
