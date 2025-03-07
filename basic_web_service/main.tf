@@ -1,5 +1,5 @@
 # Generate random string for unique bucket name
-resource "random_string" "bucket_suffix" {
+resource "random_string" "random_suffix" {
   length  = 5
   special = false
   upper   = false
@@ -86,12 +86,16 @@ resource "aws_launch_template" "web" {
 
   user_data = base64encode(<<-EOF
 #!/bin/bash
-sudo apt update
-sudo apt install -y git python3-pip
+cd ~ubuntu
+sudo su
+apt update
+apt install -y git python3-pip python3-venv
 git clone https://github.com/costnorm/example-env-iac.git
 cd example-env-iac/basic_web_service/webapp_src
-pip install -r requirements.txt
-python main.py
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+nohup python3 main.py &
 EOF
   )
 
@@ -161,4 +165,6 @@ resource "aws_autoscaling_group" "web" {
     value               = "web-asg-${random_string.random_suffix.result}"
     propagate_at_launch = true
   }
+
+  depends_on = [ module.vpc ]
 }
