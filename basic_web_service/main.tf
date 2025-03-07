@@ -1,5 +1,5 @@
 # Generate random string for unique bucket name
-resource "random_string" "bucket_suffix" {
+resource "random_string" "random_suffix" {
   length  = 5
   special = false
   upper   = false
