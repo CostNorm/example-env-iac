@@ -91,7 +91,7 @@ sudo apt update
 sudo apt install -y git python3-pip
 git clone https://github.com/costnorm/example-env-iac.git
 cd example-env-iac/basic_web_service/webapp_src
-pip install -r requirements.txt --break-system-packages
+pip3 install -r requirements.txt --break-system-packages
 nohup python3 main.py &
 EOF
   )
