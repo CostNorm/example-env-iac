@@ -1,0 +1,4 @@
+variable "awscli_profile" {
+  type = string
+  default = "costnorm"
+}
