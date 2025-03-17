@@ -20,7 +20,7 @@ resource "aws_security_group" "ec2_sg" {
 
 resource "aws_instance" "ec2_instance" {
   ami = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
+  instance_type = "m6g.medium"
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
   subnet_id = var.subnet_id
   iam_instance_profile = var.ec2_profile_name
