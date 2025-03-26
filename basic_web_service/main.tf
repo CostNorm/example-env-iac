@@ -1,3 +1,10 @@
+resource "random_string" "ec2_role_name" {
+  length = 4
+  special = false
+  upper = false
+}
+
+
 # Generate random string for unique bucket name
 resource "random_string" "random_suffix" {
   length  = 5
@@ -73,12 +80,40 @@ resource "aws_security_group" "ec2" {
   }
 }
 
+resource "aws_iam_role" "ec2_role" {
+  name = "basic_web_service_ec2_role-${random_string.ec2_role_name.result}"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "basic_web_service_ec2_profile-${random_string.ec2_role_name.result}"
+  role = aws_iam_role.ec2_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_policy_attachment" {
+  role = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
 # Launch Template
 resource "aws_launch_template" "web" {
   name_prefix   = "web-template-${random_string.random_suffix.result}"
   image_id      = data.aws_ami.ubuntu_24_04.id
   instance_type = "t3.micro"
-
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ec2_profile.name
+  }
   network_interfaces {
     associate_public_ip_address = false
     security_groups            = [aws_security_group.ec2.id]
@@ -90,6 +125,7 @@ cd ~ubuntu
 sudo su
 apt update
 apt install -y git python3-pip python3-venv
+snap install aws-cli --classic
 git clone https://github.com/costnorm/example-env-iac.git
 cd example-env-iac/basic_web_service/webapp_src
 python3 -m venv venv
